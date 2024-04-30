@@ -38,10 +38,10 @@ html {
   outline: auto;
 }
 
-:focus {
+/* :focus {
   outline: var(--color-links) solid 2px;
   outline-offset: 2px;
-}
+} */
 
 html,
 body {
