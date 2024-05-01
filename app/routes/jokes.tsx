@@ -1,34 +1,60 @@
+import React from "react";
 import type { LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, Link, Outlet, useLoaderData } from "@remix-run/react";
-
+import { Form, Link, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import stylesUrl from "~/styles/jokes.css";
-import { db } from "~/utils/db.server";
-import { getUser } from "~/utils/session.server";
+import { getUser, getAllUsers } from "~/utils/session.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesUrl },
 ];
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const user = await getUser(request);
+  const activeUser = await getUser(request);
 
-  // In the official deployed version of the app, we don't want to deploy
-  // a site with none-moderated content, so we only show users their own jokes
-  const jokeListItems = user
-    ? await db.joke.findMany({
-        orderBy: { createdAt: "desc" },
-        select: { id: true, name: true },
-        take: 5,
-        where: { jokesterId: user.id },
-      })
-    : [];
+  const userList = await getAllUsers(request);
 
-  return json({ jokeListItems, user });
+  /* Mapping all users' data with their ids */
+  const allUsersData = userList.reduce((acc, user) => {
+    acc[user.id] = user;
+    return acc;
+  }, {});
+
+  const jokeListItems = allUsersData[activeUser.id].jokes;
+
+  return json({ jokeListItems, user: activeUser, allUsersData });
 };
+
 
 export default function JokesRoute() {
   const data = useLoaderData<typeof loader>();
+  const [jokeList, setJokeList] = React.useState(data.jokeListItems);
+  const navigate = useNavigate();
+
+  /* updating the list of jokes after
+   * after we select another user from the list
+  */
+  const showJokes = e => {
+    const { value: id } = e.target;
+    let updatedList = [];
+    if (id !== "all") {
+      updatedList = data.allUsersData[id].jokes;
+    } else {
+      Object.values(data.allUsersData).forEach(userInfo => {
+        updatedList.push(...userInfo.jokes);
+      });
+    }
+    setJokeList(updatedList);
+    navigate(`${updatedList[0].id}`);
+  }
+
+  /* for showing random jokes
+   * choosing a random joke from the displayed list
+  */
+  const showRandomJoke = () => {
+    const randomIdx = Math.floor(Math.random() * (jokeList.length - 1));
+    navigate(`${jokeList[randomIdx].id}`);
+  }
 
   return (
     <div className="jokes-layout">
@@ -57,11 +83,25 @@ export default function JokesRoute() {
       <main className="jokes-main">
         <div className="container">
           <div className="jokes-list">
-            <Link to=".">Get a random joke</Link>
+            <label>Select a user to see their jokes:
+              <select name="selectedUser" defaultValue={data.user.id} onChange={showJokes}>
+                <option key="all" value="all">All</option>
+                {Object.keys(data.allUsersData)?.map(user => {
+                  const { id, username } = data.allUsersData[user];
+                  const text = id === data.user.id ? `(You) ${username}` : username;
+                  return (
+                    <option key={id} value={id}>
+                      {text}
+                    </option>
+                  )
+                })}
+              </select>
+            </label>
+            <button onClick={showRandomJoke}>Get a random joke</button>
             <p>Here are a few more jokes to check out:</p>
             <ul>
-              {data.jokeListItems.length > 0 ? (
-                data.jokeListItems.map(({ id, name }) => (
+              {jokeList.length > 0 ? (
+                jokeList.map(({ id, name }) => (
                   <li key={id}>
                     <Link prefetch="intent" to={id}>
                       {name}

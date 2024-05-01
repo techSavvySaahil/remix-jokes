@@ -96,6 +96,23 @@ export async function getUser(request: Request) {
   return user;
 }
 
+export async function getAllUsers(request: Request) {
+  const userId = await getUserId(request);
+  if (typeof userId !== "string") {
+    return null;
+  }
+
+  const users = await db.user.findMany({
+    select: { id: true, username: true, jokes: { select: { name: true, id: true } } },
+  });
+
+  if (!users.length) {
+    throw await logout(request);
+  }
+
+  return users;
+}
+
 export async function logout(request: Request) {
   const session = await getUserSession(request);
   return redirect("/login", {
