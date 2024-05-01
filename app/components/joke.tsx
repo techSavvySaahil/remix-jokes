@@ -1,5 +1,5 @@
 import type { Joke } from "@prisma/client";
-import { Form, Link } from "@remix-run/react";
+import { Form } from "@remix-run/react";
 
 export function JokeDisplay({
   canDelete = true,
@@ -12,9 +12,8 @@ export function JokeDisplay({
 }) {
   return (
     <div>
-      <p>Here's your hilarious joke:</p>
+      <p>"{joke.name}"</p>
       <p>{joke.content}</p>
-      <Link to=".">"{joke.name}" Permalink</Link>
       {isOwner ? (
         <Form method="post">
           <button
