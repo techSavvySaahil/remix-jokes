@@ -4,6 +4,7 @@ import { json } from "@remix-run/node";
 import { Form, Link, Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import stylesUrl from "~/styles/jokes.css";
 import { getUser, getAllUsers } from "~/utils/session.server";
+import JokesList from "../components/JokesList";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesUrl },
@@ -98,20 +99,8 @@ export default function JokesRoute() {
               </select>
             </label>
             <button onClick={showRandomJoke}>Get a random joke</button>
-            <p>Here are a few more jokes to check out:</p>
-            <ul>
-              {jokeList.length > 0 ? (
-                jokeList.map(({ id, name }) => (
-                  <li key={id}>
-                    <Link prefetch="intent" to={id}>
-                      {name}
-                    </Link>
-                  </li>
-                ))
-              ) : (
-                <li>No jokes found</li>
-              )}
-            </ul>
+            <p>Click on a joke to read it:</p>
+            <JokesList jokes={jokeList} />
             <Link to="new" className="button">
               Add your own
             </Link>
