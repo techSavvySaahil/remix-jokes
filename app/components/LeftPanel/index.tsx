@@ -33,7 +33,7 @@ const LeftPanel = ({ data }: LeftPanelType) => {
   const [jokeList, setJokeList] = useState<Joke[]>(jokeListItems);
   const [selectedJokeId, setSelectedJokeId] = useState<string>(jokeListItems[0]?.id);
   const navigate = useNavigate();
-  const inputRef = useRef<HTMLElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const filtersReducer = (state: FilterType, action: ActionObjType) => {
     switch (action.type) {
@@ -75,7 +75,7 @@ const LeftPanel = ({ data }: LeftPanelType) => {
   const keywordHandler = () => {
     // apply debouncing
     dispatchFilters({
-      type: ActionTypeList.USER_UPDATED,
+      type: ActionTypeList.KEYWORD_CHANGED,
       value: inputRef.current?.value
     })
   }
@@ -101,7 +101,7 @@ const LeftPanel = ({ data }: LeftPanelType) => {
     setJokeList(updatedList);
     const newJokeId = updatedList[0]?.id;
     setSelectedJokeId(newJokeId);
-    navigate(`${newJokeId}`);
+    newJokeId ? navigate(`${newJokeId}`) : navigate("/jokes");
   }, [selectedFilters]);
 
   /* for showing random jokes from the displayed list */
@@ -117,7 +117,7 @@ const LeftPanel = ({ data }: LeftPanelType) => {
   }
 
   return (
-    <div className="jokes-list">
+    <div className="left-panel">
       <label>Select a user to see their jokes:
         <select className="user-dropdown" name="selectedUser" defaultValue={userData?.id} onChange={selectUser}>
           <option key="all" value="all">All</option>
@@ -132,9 +132,9 @@ const LeftPanel = ({ data }: LeftPanelType) => {
           })}
         </select>
       </label>
+      <input type="text" ref={inputRef} placeholder="Search a joke" onChange={keywordHandler} />
       <p>Click on a joke to read it:</p>
-      <input ref={inputRef} placeholder="Search a joke" onChange={keywordHandler} />
-      <JokesList jokes={jokeList} />
+      <JokesList jokes={jokeList} active={selectedJokeId} />
       <button className="button" onClick={showRandomJoke}>See a random joke</button>
       <p><b>(OR)</b></p>
       <Link to="new" className="button">
