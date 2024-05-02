@@ -51,13 +51,9 @@ export function ErrorBoundary() {
     return (
       <div className="error-container">
         <p>
-          There are no jokes to display.
+          There are no jokes to display. But we think you're funny.
+          Why don't you add a joke and prove us right ?
           <br />
-          <small>
-            Note: this is the deployed version of the jokes app example and
-            because we don't want to show you none-moderated content, we only
-            display jokes you create in this version.
-          </small>
         </p>
         <Link to="new">Add your own</Link>
       </div>
