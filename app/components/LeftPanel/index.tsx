@@ -102,7 +102,7 @@ const LeftPanel = ({ data }: LeftPanelType) => {
     const newJokeId = updatedList[0]?.id;
     setSelectedJokeId(newJokeId);
     newJokeId ? navigate(`${newJokeId}`) : navigate("/jokes");
-  }, [selectedFilters]);
+  }, [selectedFilters, allUsersData]);
 
   /* for showing random jokes from the displayed list */
   const showRandomJoke = () => {
