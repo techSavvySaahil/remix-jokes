@@ -52,7 +52,7 @@ export function ErrorBoundary() {
       <div className="error-container">
         <p>
           There are no jokes to display. But we think you're funny.
-          So, you can add a joke and let's laugh together.
+          So, you can add a joke and make people laugh.
           <br />
         </p>
         <Link to="new">Add your own</Link>

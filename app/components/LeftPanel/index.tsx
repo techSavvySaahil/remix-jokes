@@ -106,6 +106,7 @@ const LeftPanel = ({ data }: LeftPanelType) => {
 
   /* for showing random jokes from the displayed list */
   const showRandomJoke = () => {
+    if (jokeList.length < 2) return;
     const randomIdx = Math.round(Math.random() * (jokeList.length - 1));
     const pickedJokeId = jokeList[randomIdx].id;
     /* Calling the fn again if the new joke id and current joke id are same */
@@ -134,7 +135,7 @@ const LeftPanel = ({ data }: LeftPanelType) => {
       </label>
       <input type="text" ref={inputRef} placeholder="Search a joke" onChange={keywordHandler} />
       <p>Click on a joke to read it:</p>
-      <JokesList jokes={jokeList} active={selectedJokeId} />
+      <JokesList jokes={jokeList} active={selectedJokeId} changeJoke={(id) => { setSelectedJokeId(id) }} />
       <button className="button" onClick={showRandomJoke}>See a random joke</button>
       <p><b>(OR)</b></p>
       <Link to="new" className="button">
