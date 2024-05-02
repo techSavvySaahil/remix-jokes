@@ -56,12 +56,30 @@
   gap: 1rem;
 }
 
+.user-dropdown {
+  width: 100%;
+}
+
 .jokes-list {
   max-width: 12rem;
 }
 
 .jokes-outlet {
   flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.joke-card {
+  padding: 20px;
+  border-radius: 40px;
+  width: 60%;
+  background-color: hsl(0 0% 100% / 25%);
+  min-width: 320px;
+  box-shadow: 0 3px 0 0 hsl(0 0% 100% / 50%);
+  max-height: 350px;
+  overflow: auto;
 }
 
 .jokes-footer {
@@ -88,5 +106,14 @@
 @media (max-width: 639px) {
   .jokes-main .container {
     flex-direction: column;
+  }
+  .jokes-list {
+    margin-bottom: 50px;
+  }
+
+  .joke-card {
+    max-height: 200px;
+    overflow: auto;
+    padding: 10px 20px;
   }
 }

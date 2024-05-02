@@ -11,7 +11,7 @@ export function JokeDisplay({
   joke: Pick<Joke, "content" | "name">;
 }) {
   return (
-    <div>
+    <div className="joke-card">
       <p>"{joke.name}"</p>
       <p>{joke.content}</p>
       {isOwner ? (

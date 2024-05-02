@@ -36,7 +36,7 @@ export default function JokesIndexRoute() {
   const data = useLoaderData<typeof loader>();
 
   return (
-    <div>
+    <div className="joke-card">
       <p>"{data.randomJoke.name}"</p>
       <p>{data.randomJoke.content}</p>
     </div>
@@ -52,7 +52,7 @@ export function ErrorBoundary() {
       <div className="error-container">
         <p>
           There are no jokes to display. But we think you're funny.
-          Why don't you add a joke and prove us right ?
+          So, you can add a joke and let's laugh together.
           <br />
         </p>
         <Link to="new">Add your own</Link>
