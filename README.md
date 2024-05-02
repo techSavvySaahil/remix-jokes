@@ -13,3 +13,15 @@ So great, it's funny!
 - Or you can add your own joke by clicking "Add your own" button
 
 So, what are you waiting for? Login, read or add jokes and have a good time laughing.
+
+To run the project in your local,
+
+- Clone the repo
+- Go to develop branch
+- Run the following commands
+
+```sh
+npm install
+npx prisma migrate dev
+npm run dev
+```
