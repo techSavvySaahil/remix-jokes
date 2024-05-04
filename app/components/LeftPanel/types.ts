@@ -1,4 +1,4 @@
-import type { User, Joke } from "@prisma/client";
+import type { UserMain, JokeMain, UserJokeType } from "../../common/types";
 
 export enum ActionTypeList {
   KEYWORD_CHANGED = "KEYWORD_CHANGED",
@@ -19,10 +19,10 @@ export  type ActionObjType = {
 
 export type LeftPanelType = {
   data: {
-    user: User,
-    jokeListItems: Joke[],
+    user: UserMain,
+    jokeListItems: JokeMain[],
     allUsersData: {
-      [key: string]: User
+      [x: string]: UserJokeType | null
     }
   }
 }

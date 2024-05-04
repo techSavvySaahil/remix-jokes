@@ -1,21 +1,16 @@
 import type { LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import type { User, Joke } from "@prisma/client";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import stylesUrl from "~/styles/jokes.css";
 import { getUser, getAllUsers } from "~/utils/session.server";
 import Header from "~/components/Header";
 import Footer from "~/components/Footer";
 import LeftPanel from "~/components/LeftPanel";
+import type { UserMain, JokeMain, UserJokeType } from "../common/types";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesUrl },
 ];
-type JokeMain = Pick<Joke, "name" | "id" | "createdAt">;
-type UserMain = Pick<User, "id" | "username">;
-interface UserJokeType extends UserMain {
-  jokes: JokeMain[]
-}
 
 export const loader = async ({ request }: LoaderArgs) => {
   const activeUser: UserMain | null = await getUser(request);
@@ -23,15 +18,18 @@ export const loader = async ({ request }: LoaderArgs) => {
   const userList: UserJokeType[] | [] = activeUser ? await getAllUsers(request) : [];
 
   /* Mapping all users' data with their ids */
-  const allUsersData: { [key: string]: User } = activeUser ? userList.reduce((acc, user: User) => {
-    acc[user.id] = user;
-    return acc;
-  }, {}) : null;
+  let allUsersData: { [x: string]: UserJokeType } | null = null;
+  if (activeUser) {
+    userList.forEach((user: UserJokeType) => {
+      if (!allUsersData) allUsersData = { [user.id]: user };
+      else allUsersData[user.id] = user;
+    });
 
-  const jokeListItems: JokeMain[] = activeUser ? allUsersData[activeUser.id].jokes : [];
+    const jokeListItems: JokeMain[] = activeUser && allUsersData ? allUsersData[activeUser["id"]]["jokes"] : [];
 
-  return json({ jokeListItems, user: activeUser, allUsersData });
-};
+    return json({ jokeListItems, user: activeUser, allUsersData });
+  }
+}
 
 
 export default function JokesRoute() {
@@ -39,10 +37,10 @@ export default function JokesRoute() {
 
   return (
     <div className="jokes-layout">
-      <Header userData={data.user} />
+      <Header userData={data?.user} />
       <main className="jokes-main">
         <div className="container">
-          {data.user?.id && <LeftPanel data={data} />}
+          {data?.user?.id && <LeftPanel data={data} />}
           <div className="jokes-outlet">
             <Outlet />
           </div>

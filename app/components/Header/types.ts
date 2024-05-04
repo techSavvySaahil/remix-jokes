@@ -1,5 +1,5 @@
-import type { User } from "@prisma/client";
+import type { UserMain } from "../../common/types";
 
 export type HeaderType = {
-  userData: User
+  userData: UserMain
 }

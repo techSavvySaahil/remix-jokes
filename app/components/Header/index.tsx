@@ -1,7 +1,7 @@
 import { Form, Link } from "@remix-run/react";
 import type { HeaderType } from "./types";
 
-const Header = ({ userData }: HeaderType | { userData: null }) => {
+const Header = ({ userData }: HeaderType | { userData: undefined }) => {
   return (
     <header className="jokes-header">
       <div className="container">
