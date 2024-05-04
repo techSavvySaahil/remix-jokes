@@ -99,11 +99,11 @@ export async function getUser(request: Request) {
 export async function getAllUsers(request: Request) {
   const userId = await getUserId(request);
   if (typeof userId !== "string") {
-    return null;
+    return [];
   }
 
   const users = await db.user.findMany({
-    select: { id: true, username: true, jokes: { select: { name: true, id: true } } },
+    select: { id: true, username: true, jokes: { select: { name: true, id: true, createdAt: true } } },
   });
 
   if (!users.length) {

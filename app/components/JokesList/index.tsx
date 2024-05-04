@@ -1,11 +1,5 @@
 import { Link } from "@remix-run/react";
-import type { Joke } from "@prisma/client";
-
-type JokeListType = {
-  jokes: Joke[],
-  active: string,
-  changeJoke: (id: string) => void
-}
+import type { JokeListType } from "./types";
 
 const JokesList = ({ jokes, active, changeJoke }: JokeListType) => (
   <ul className="jokes-list">

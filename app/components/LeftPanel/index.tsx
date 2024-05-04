@@ -1,44 +1,20 @@
 import React, { useEffect, useState, useReducer, useRef } from "react";
-import { Link, useNavigate } from "@remix-run/react";
-import type { User, Joke } from "@prisma/client";
+import { Link, useNavigate, useParams } from "@remix-run/react";
+import type { Joke } from "@prisma/client";
 import JokesList from "~/components/JokesList";
-
-type LeftPanelType = {
-  data: {
-    user: User,
-    jokeListItems: Joke[],
-    allUsersData: {
-      [key: string]: User
-    }
-  }
-}
-
-enum ActionTypeList {
-  KEYWORD_CHANGED = "KEYWORD_CHANGED",
-  USER_UPDATED = "USER_UPDATED"
-}
-
-type FilterType = {
-  user: string,
-  keyword: string
-}
-
-type ActionObjType = {
-  type: ActionTypeList,
-  value: string
-}
+import { ActionTypeList, type FilterType, type ActionObjType, type LeftPanelType } from "./types";
 
 const LeftPanel = ({ data }: LeftPanelType) => {
   const { user: userData, allUsersData, jokeListItems } = data;
   const [jokeList, setJokeList] = useState<Joke[]>(jokeListItems);
-  const [selectedJokeId, setSelectedJokeId] = useState<string>(jokeListItems[0]?.id);
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const selectedJokeId = useParams().jokeId;
 
   const filtersReducer = (state: FilterType, action: ActionObjType) => {
     switch (action.type) {
       /* updating the list of jokes after
-      * after a search query is entered
+       * after a search query is entered
       */
       case ActionTypeList.KEYWORD_CHANGED:
         return {
@@ -46,21 +22,28 @@ const LeftPanel = ({ data }: LeftPanelType) => {
           keyword: action.value
         }
       /* updating the list of jokes after
-      * after we select another user from the list
+       * after we select another user from the list
       */
       case ActionTypeList.USER_UPDATED:
-        if (inputRef && inputRef.current) inputRef.current.value = "";
         return {
           ...state,
-          user: action.value,
-          keyword: ""
+          user: action.value
+        }
+      /* updating the list of jokes after
+       * after a new "Sort by" is selected
+      */
+      case ActionTypeList.SORT_UPDATED:
+        return {
+          ...state,
+          sortKey: action.value
         }
     }
   };
 
   const initialFilters: FilterType = {
     user: userData.id,
-    keyword: ""
+    keyword: "",
+    sortKey: "name"
   };
   const [selectedFilters, dispatchFilters] = useReducer(filtersReducer, initialFilters);
 
@@ -69,6 +52,14 @@ const LeftPanel = ({ data }: LeftPanelType) => {
     dispatchFilters({
       type: ActionTypeList.USER_UPDATED,
       value: id
+    });
+  }
+
+  const sortJokes = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value: sortKey = "" } = e.target;
+    dispatchFilters({
+      type: ActionTypeList.SORT_UPDATED,
+      value: sortKey
     });
   }
 
@@ -81,7 +72,7 @@ const LeftPanel = ({ data }: LeftPanelType) => {
   }
 
   useEffect(() => {
-    const { user, keyword } = selectedFilters;
+    const { user, keyword, sortKey } = selectedFilters;
     let updatedList = [];
     if (user !== "all") {
       updatedList = allUsersData[user].jokes;
@@ -98,10 +89,11 @@ const LeftPanel = ({ data }: LeftPanelType) => {
         return false;
       });
     }
-    setJokeList(updatedList);
-    const newJokeId = updatedList[0]?.id;
-    setSelectedJokeId(newJokeId);
-    newJokeId ? navigate(`${newJokeId}`) : navigate("/jokes");
+    updatedList = updatedList.sort((a: Joke, b: Joke) => {
+      return a[sortKey] < b[sortKey] ? -1 : 1;
+    });
+
+    setJokeList([...updatedList]);
   }, [selectedFilters, allUsersData]);
 
   /* for showing random jokes from the displayed list */
@@ -112,14 +104,13 @@ const LeftPanel = ({ data }: LeftPanelType) => {
     /* Calling the fn again if the new joke id and current joke id are same */
     if (pickedJokeId === selectedJokeId) showRandomJoke();
     else {
-      setSelectedJokeId(pickedJokeId);
       navigate(`${pickedJokeId}`);
     }
   }
 
   return (
     <div className="left-panel">
-      <label>Select a user to see their jokes:
+      <label><b>Select</b> <span className="small-desc"><i>(a user to see their jokes)</i></span>:
         <select className="user-dropdown" name="selectedUser" defaultValue={userData?.id} onChange={selectUser}>
           <option key="all" value="all">All</option>
           {Object.keys(allUsersData)?.map(user => {
@@ -133,9 +124,17 @@ const LeftPanel = ({ data }: LeftPanelType) => {
           })}
         </select>
       </label>
-      <input type="text" ref={inputRef} placeholder="Search a joke" onChange={keywordHandler} />
+      <label><b>Search</b> <span className="small-desc"><i>(a keyword)</i></span>:
+        <input type="text" ref={inputRef} placeholder="Search a joke" onChange={keywordHandler} />
+      </label>
+      <label><b>Sort</b> <span className="small-desc"><i>(by name or date)</i></span>:
+        <select className="sort-dropdown" name="jokeSorter" onChange={sortJokes}>
+          <option key="name" value="name">Name</option>
+          <option key="date" value="createdAt">Date</option>
+        </select>
+      </label>
       <p>Click on a joke to read it:</p>
-      <JokesList jokes={jokeList} active={selectedJokeId} changeJoke={(id) => { setSelectedJokeId(id) }} />
+      <JokesList jokes={jokeList} active={selectedJokeId} changeJoke={(id) => { navigate(id) }} />
       <button className="button" onClick={showRandomJoke}>See a random joke</button>
       <p><b>(OR)</b></p>
       <Link to="new" className="button">

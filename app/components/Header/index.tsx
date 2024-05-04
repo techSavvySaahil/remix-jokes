@@ -1,11 +1,7 @@
 import { Form, Link } from "@remix-run/react";
-import type { User } from "@prisma/client";
+import type { HeaderType } from "./types";
 
-type HeaderType = {
-  userData: User
-}
-
-const Header = ({ userData }: HeaderType) => {
+const Header = ({ userData }: HeaderType | { userData: null }) => {
   return (
     <header className="jokes-header">
       <div className="container">

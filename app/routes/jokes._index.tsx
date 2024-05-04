@@ -1,58 +1,26 @@
-import type { LoaderArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import React from "react";
 import {
-  isRouteErrorResponse,
   Link,
-  useLoaderData,
   useRouteError,
+  useParams
 } from "@remix-run/react";
 
-import { db } from "~/utils/db.server";
-import { getUserId } from "~/utils/session.server";
-
-export const loader = async ({ request }: LoaderArgs) => {
-  const userId = await getUserId(request);
-  if (!userId) {
-    throw new Response("No random joke found", { status: 404 });
-  }
-
-  // In the official deployed version of the app, we don't want to deploy
-  // a site with none-moderated content, so we only show users their own jokes
-  const count = await db.joke.count({ where: { jokesterId: userId } });
-  const randomRowNumber = Math.floor(Math.random() * count);
-
-  const [randomJoke] = await db.joke.findMany({
-    skip: randomRowNumber,
-    take: 1,
-    where: { jokesterId: userId },
-  });
-  if (!randomJoke) {
-    throw new Response("No random joke found", { status: 404 });
-  }
-  return json({ randomJoke });
-};
-
 export default function JokesIndexRoute() {
-  const data = useLoaderData<typeof loader>();
-
-  return (
-    <div className="joke-card">
-      <p>"{data.randomJoke.name}"</p>
-      <p>{data.randomJoke.content}</p>
-    </div>
-  );
+  const { jokeId } = useParams();
+  if (!jokeId) throw new Response("No jokes", { status: 404 });
+  return null;
 }
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  console.error(error);
 
-  if (isRouteErrorResponse(error) && error.status === 404) {
+  if (error.status === 404) {
     return (
       <div className="error-container">
         <p>
-          There are no jokes to display. But we think you're funny.
-          So, you can add a joke and make people laugh.
+          There are no jokes to display. Click on a joke from the list on the left side.<br />
+          You can change filters to see more jokes if there are none in the list.<br />
+          Also, you can add a joke and make people laugh.
           <br />
         </p>
         <Link to="new">Add your own</Link>

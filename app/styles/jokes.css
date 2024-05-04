@@ -56,7 +56,7 @@
   gap: 1rem;
 }
 
-.user-dropdown {
+.user-dropdown, .sort-dropdown {
   width: 100%;
   display: flex;
   align-items: center;
@@ -79,9 +79,25 @@
   max-width: 12rem;
 }
 
+.left-panel label {
+  margin-bottom: 20px;
+  display: block;
+}
+
+.left-panel label input {
+  margin: 10px 0 20px;
+}
+
+.left-panel label span.small-desc {
+  font-size: 14px;
+  font-style: italic;
+}
+
 .jokes-list {
   padding: 0 10px;
   margin: 0 0 30px;
+  max-height: 160px;
+  overflow: auto;
 }
 
 .jokes-list li {

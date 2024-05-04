@@ -7,16 +7,16 @@ import {
   useRouteError,
 } from "@remix-run/react";
 
-import { JokeDisplay } from "~/components/joke";
+import { JokeDisplay } from "~/components/Joke";
 import { db } from "~/utils/db.server";
 import { getUserId, requireUserId } from "~/utils/session.server";
 
 export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
   const { description, title } = data
     ? {
-        description: `Enjoy the "${data.joke.name}" joke and much more`,
-        title: `"${data.joke.name}" joke`,
-      }
+      description: `Enjoy the "${data.joke.name}" joke and much more`,
+      title: `"${data.joke.name}" joke`,
+    }
     : { description: "No joke found", title: "No joke" };
 
   return [

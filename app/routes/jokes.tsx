@@ -11,11 +11,16 @@ import LeftPanel from "~/components/LeftPanel";
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesUrl },
 ];
+type JokeMain = Pick<Joke, "name" | "id" | "createdAt">;
+type UserMain = Pick<User, "id" | "username">;
+interface UserJokeType extends UserMain {
+  jokes: JokeMain[]
+}
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const activeUser: User = await getUser(request);
+  const activeUser: UserMain | null = await getUser(request);
 
-  const userList: User[] = activeUser ? await getAllUsers(request) : null;
+  const userList: UserJokeType[] | [] = activeUser ? await getAllUsers(request) : [];
 
   /* Mapping all users' data with their ids */
   const allUsersData: { [key: string]: User } = activeUser ? userList.reduce((acc, user: User) => {
@@ -23,7 +28,7 @@ export const loader = async ({ request }: LoaderArgs) => {
     return acc;
   }, {}) : null;
 
-  const jokeListItems: Joke[] = activeUser ? allUsersData[activeUser.id].jokes : [];
+  const jokeListItems: JokeMain[] = activeUser ? allUsersData[activeUser.id].jokes : [];
 
   return json({ jokeListItems, user: activeUser, allUsersData });
 };

@@ -9,7 +9,7 @@ import {
   useRouteError,
 } from "@remix-run/react";
 
-import { JokeDisplay } from "~/components/joke";
+import { JokeDisplay } from "~/components/Joke";
 import { db } from "~/utils/db.server";
 import { badRequest } from "~/utils/request.server";
 import { getUserId, requireUserId } from "~/utils/session.server";
