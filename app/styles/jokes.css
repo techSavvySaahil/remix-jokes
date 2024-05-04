@@ -53,7 +53,7 @@
 
 .jokes-main .container {
   display: flex;
-  gap: 1rem;
+  gap: 15%;
 }
 
 .user-dropdown, .sort-dropdown {
@@ -76,7 +76,7 @@
 }
 
 .left-panel {
-  max-width: 12rem;
+  width: 30%;
 }
 
 .left-panel label {
@@ -92,17 +92,21 @@
   font-size: 14px;
   font-style: italic;
 }
+.click-to-read {
+  margin: 27px 0 5px;
+}
 
 .jokes-list {
   padding: 0 10px;
   margin: 0 0 30px;
-  max-height: 160px;
+  height: 160px;
   overflow: auto;
 }
 
 .jokes-list li {
   list-style: none;
-  padding-bottom: 5px;
+  padding-bottom: 10px;
+  font-weight: bold;
 }
 
 .active-joke {
@@ -114,25 +118,36 @@
   padding-bottom: 2px;
 }
 
+.content-container {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: end;
+  width: 55%;
+}
+
 .jokes-outlet {
   flex: 1;
   display: flex;
-  justify-content: center;
+  justify-content: end;
   align-items: center;
+  width: 100%;
+}
+
+textarea {
+  height: 150px;
 }
 
 .joke-card {
   border-radius: 25px;
-  width: 60%;
+  width: 85%;
   background-color: #ffffff40;
   min-width: 320px;
   box-shadow: 0 3px #ffffff7f;
   position: relative;
-  height: 300px;
+  height: 315px;
 }
 
 .joke-card p:nth-child(1) {
-  position: absolute;
   width: 100%;
   background-color: #6d4b80;
   margin: 0;
@@ -142,13 +157,31 @@
 }
 
 .joke-card p:nth-child(2) {
-  position: relative;
-  top: 63px;
   margin: 0;
   padding: 5px 20px 15px;
-  height: 237px;
+  height: 185px;
   overflow: auto;
   font-size: 20px;
+}
+
+form {
+  align-items: center;
+  margin-top: 15px;
+}
+
+form button {
+  width: fit-content;
+}
+
+.new-joke-container {
+  width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.new-joke-container form div {
+  width: 100%;
 }
 
 .jokes-footer {
@@ -178,11 +211,34 @@
   }
   .left-panel {
     margin-bottom: 50px;
+    width: 100%;
+  }
+
+  .jokes-list {
+    height: 100px;
+  }
+
+  .content-container {
+    width: 100%;
+    align-items: start;
   }
 
   .joke-card {
     max-height: 200px;
     overflow: auto;
     padding: 10px 20px;
+    width: 100%;
   }
+
+  .joke-card p:nth-child(1) {
+    padding: 10px 20px;
+  }
+
+  .joke-card p:nth-child(2) {
+    height: unset;
+   }
+
+   .jokes-outlet {
+    margin-bottom: 20px;
+   }
 }

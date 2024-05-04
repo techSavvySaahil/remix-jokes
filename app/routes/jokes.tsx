@@ -1,6 +1,6 @@
 import type { LinksFunction, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import { Outlet, useLoaderData, Link, useLocation } from "@remix-run/react";
 import stylesUrl from "~/styles/jokes.css";
 import { getUser, getAllUsers } from "~/utils/session.server";
 import Header from "~/components/Header";
@@ -31,9 +31,10 @@ export const loader = async ({ request }: LoaderArgs) => {
   }
 }
 
-
 export default function JokesRoute() {
   const data = useLoaderData<typeof loader>();
+  const location = useLocation();
+  const isNewView = location.pathname === "/jokes/new";
 
   return (
     <div className="jokes-layout">
@@ -41,8 +42,13 @@ export default function JokesRoute() {
       <main className="jokes-main">
         <div className="container">
           {data?.user?.id && <LeftPanel data={data} />}
-          <div className="jokes-outlet">
-            <Outlet />
+          <div className="content-container">
+            {!isNewView && <Link to="new" className="button">
+              Add your own
+            </Link>}
+            <div className="jokes-outlet">
+              <Outlet />
+            </div>
           </div>
         </div>
       </main>

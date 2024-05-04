@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useReducer, useRef } from "react";
-import { Link, useNavigate, useParams } from "@remix-run/react";
+import { useNavigate, useParams } from "@remix-run/react";
 import type { Joke } from "@prisma/client";
 import JokesList from "~/components/JokesList";
 import { ActionTypeList, type FilterType, type ActionObjType, type LeftPanelType } from "./types";
@@ -133,13 +133,9 @@ const LeftPanel = ({ data }: LeftPanelType) => {
           <option key="date" value="createdAt">Date</option>
         </select>
       </label>
-      <p>Click on a joke to read it:</p>
+      <p className="click-to-read">Click on a joke to read it:</p>
       <JokesList jokes={jokeList} active={selectedJokeId} changeJoke={(id) => { navigate(id) }} />
       <button className="button" onClick={showRandomJoke}>See a random joke</button>
-      <p><b>(OR)</b></p>
-      <Link to="new" className="button">
-        Add your own
-      </Link>
     </div>
   )
 }
