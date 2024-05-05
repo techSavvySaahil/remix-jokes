@@ -1,6 +1,10 @@
-import type { User, Joke } from "@prisma/client";
+import type { User } from "@prisma/client";
 
-export type JokeMain = Pick<Joke, "name" | "id" | "createdAt">;
+export type JokeMain = {
+  name: string,
+  id: string,
+  createdAt: Date | string
+}
 
 export type UserMain = Pick<User, "id" | "username">;
 

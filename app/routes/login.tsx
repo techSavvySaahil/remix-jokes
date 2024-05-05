@@ -1,7 +1,7 @@
 import type {
-  ActionArgs,
+  ActionFunctionArgs,
   LinksFunction,
-  V2_MetaFunction,
+  MetaFunction,
 } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 
@@ -14,7 +14,7 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesUrl },
 ];
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   const description = "Login to submit your own jokes to Remix Jokes!";
 
   return [
@@ -44,7 +44,7 @@ function validateUrl(url: string) {
   return "/jokes";
 }
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const form = await request.formData();
   const loginType = form.get("loginType");
   const password = form.get("password");

@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useReducer, useRef } from "react";
 import { useNavigate, useParams } from "@remix-run/react";
-import type { Joke } from "@prisma/client";
 import JokesList from "~/components/JokesList";
 import { ActionTypeList, type FilterType, type ActionObjType, type LeftPanelType } from "./types";
+import type { JokeMain } from "../../common/types";
 
 const LeftPanel = ({ data }: LeftPanelType) => {
-  const { user: userData, allUsersData, jokeListItems } = data;
-  const [jokeList, setJokeList] = useState<Joke[]>(jokeListItems);
+  const { jokeListItems, allUsersData, user: userData } = data;
+  const [jokeList, setJokeList] = useState<JokeMain[]>(jokeListItems);
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const selectedJokeId = useParams().jokeId;
@@ -37,6 +37,8 @@ const LeftPanel = ({ data }: LeftPanelType) => {
           ...state,
           sortKey: action.value
         }
+      default:
+        return state;
     }
   };
 
@@ -56,40 +58,42 @@ const LeftPanel = ({ data }: LeftPanelType) => {
   }
 
   const sortJokes = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value: sortKey = "" } = e.target;
-    dispatchFilters({
-      type: ActionTypeList.SORT_UPDATED,
-      value: sortKey
-    });
+    const { value: sortKey = "name" } = e.target;
+    if (sortKey === "name" || sortKey === "createdAt") {
+      dispatchFilters({
+        type: ActionTypeList.SORT_UPDATED,
+        value: sortKey
+      });
+    }
   }
 
   const keywordHandler = () => {
     // apply debouncing
     dispatchFilters({
       type: ActionTypeList.KEYWORD_CHANGED,
-      value: inputRef.current?.value
+      value: inputRef.current?.value || ""
     })
   }
 
   useEffect(() => {
     const { user, keyword, sortKey } = selectedFilters;
-    let updatedList = [];
+    let updatedList: JokeMain[] = [];
     if (user !== "all") {
-      updatedList = allUsersData[user].jokes;
+      updatedList = allUsersData[user]?.jokes || [];
     } else {
       Object.values(allUsersData).forEach(userInfo => {
-        updatedList.push(...userInfo.jokes);
+        if (userInfo) updatedList.push(...userInfo.jokes);
       });
     }
     if (keyword !== "") {
-      updatedList = updatedList.filter((joke: Joke) => {
+      updatedList = updatedList.filter((joke: JokeMain) => {
         if (joke.name.toLowerCase().includes(keyword.toLowerCase())) {
           return true;
         }
         return false;
       });
     }
-    updatedList = updatedList.sort((a: Joke, b: Joke) => {
+    updatedList = updatedList.sort((a: JokeMain, b: JokeMain) => {
       return a[sortKey] < b[sortKey] ? -1 : 1;
     });
 
@@ -114,7 +118,7 @@ const LeftPanel = ({ data }: LeftPanelType) => {
         <select className="user-dropdown" name="selectedUser" defaultValue={userData?.id} onChange={selectUser}>
           <option key="all" value="all">All</option>
           {Object.keys(allUsersData)?.map(user => {
-            const { id, username } = allUsersData[user];
+            const { id, username } = allUsersData[user] || {};
             const text = id === userData.id ? `(You) ${username}` : username;
             return (
               <option key={id} value={id}>

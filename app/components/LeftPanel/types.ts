@@ -9,13 +9,20 @@ export enum ActionTypeList {
 export type FilterType = {
   user: string,
   keyword: string,
-  sortKey: string
+  sortKey: "name" | "createdAt"
 }
 
-export  type ActionObjType = {
-  type: ActionTypeList,
+export type KeyUserObjType = {
+  type: ActionTypeList.KEYWORD_CHANGED | ActionTypeList.USER_UPDATED,
   value: string
 }
+
+export type SortActionObjType = {
+  type: ActionTypeList.SORT_UPDATED,
+  value: "name" | "createdAt"
+}
+
+export type ActionObjType = KeyUserObjType | SortActionObjType;
 
 export type LeftPanelType = {
   data: {

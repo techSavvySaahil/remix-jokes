@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 
 import { db } from "~/utils/db.server";
 import { getUserId } from "~/utils/session.server";
@@ -16,18 +16,18 @@ function escapeHtml(s: string) {
     .replace(/'/g, "&#039;");
 }
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await getUserId(request);
 
   // In the official deployed version of the app, we don't want to deploy
   // a site with none-moderated content, so we only show users their own jokes
   const jokes = userId
     ? await db.joke.findMany({
-        include: { jokester: { select: { username: true } } },
-        orderBy: { createdAt: "desc" },
-        take: 100,
-        where: { jokesterId: userId },
-      })
+      include: { jokester: { select: { username: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+      where: { jokesterId: userId },
+    })
     : [];
 
   const host =
@@ -49,23 +49,23 @@ export const loader = async ({ request }: LoaderArgs) => {
         <generator>Kody the Koala</generator>
         <ttl>40</ttl>
         ${jokes
-          .map((joke) =>
-            `
+      .map((joke) =>
+        `
             <item>
               <title><![CDATA[${escapeCdata(joke.name)}]]></title>
               <description><![CDATA[A funny joke called ${escapeHtml(
-                joke.name,
-              )}]]></description>
+          joke.name,
+        )}]]></description>
               <author><![CDATA[${escapeCdata(
-                joke.jokester.username,
-              )}]]></author>
+          joke.jokester.username,
+        )}]]></author>
               <pubDate>${joke.createdAt.toUTCString()}</pubDate>
               <link>${jokesUrl}/${joke.id}</link>
               <guid>${jokesUrl}/${joke.id}</guid>
             </item>
           `.trim(),
-          )
-          .join("\n")}
+      )
+      .join("\n")}
       </channel>
     </rss>
   `.trim();

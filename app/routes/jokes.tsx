@@ -1,4 +1,4 @@
-import type { LinksFunction, LoaderArgs } from "@remix-run/node";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Outlet, useLoaderData, Link, useLocation } from "@remix-run/react";
 import stylesUrl from "~/styles/jokes.css";
@@ -12,13 +12,13 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesUrl },
 ];
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const activeUser: UserMain | null = await getUser(request);
 
   const userList: UserJokeType[] | [] = activeUser ? await getAllUsers(request) : [];
 
   /* Mapping all users' data with their ids */
-  let allUsersData: { [x: string]: UserJokeType } | null = null;
+  let allUsersData: { [x: string]: UserJokeType } = {};
   if (activeUser) {
     userList.forEach((user: UserJokeType) => {
       if (!allUsersData) allUsersData = { [user.id]: user };

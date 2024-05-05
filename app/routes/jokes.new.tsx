@@ -1,4 +1,4 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -14,7 +14,7 @@ import { db } from "~/utils/db.server";
 import { badRequest } from "~/utils/request.server";
 import { getUserId, requireUserId } from "~/utils/session.server";
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await getUserId(request);
   if (!userId) {
     throw new Response("Unauthorized", { status: 401 });
@@ -34,7 +34,7 @@ function validateJokeName(name: string) {
   }
 }
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
   const form = await request.formData();
   const content = form.get("content");
@@ -151,7 +151,6 @@ export default function NewJokeRoute() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  console.error(error);
 
   if (isRouteErrorResponse(error) && error.status === 401) {
     return (

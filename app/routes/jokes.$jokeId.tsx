@@ -1,4 +1,4 @@
-import type { ActionArgs, LoaderArgs, V2_MetaFunction } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   isRouteErrorResponse,
@@ -11,7 +11,7 @@ import { JokeDisplay } from "~/components/Joke";
 import { db } from "~/utils/db.server";
 import { getUserId, requireUserId } from "~/utils/session.server";
 
-export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
   const { description, title } = data
     ? {
       description: `Enjoy the "${data.joke.name}" joke and much more`,
@@ -26,7 +26,7 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
   ];
 };
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = await getUserId(request);
   const joke = await db.joke.findUnique({
     where: { id: params.jokeId },
@@ -40,7 +40,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   });
 };
 
-export const action = async ({ params, request }: ActionArgs) => {
+export const action = async ({ params, request }: ActionFunctionArgs) => {
   const form = await request.formData();
   if (form.get("intent") !== "delete") {
     throw new Response(`The intent ${form.get("intent")} is not supported`, {
@@ -70,7 +70,6 @@ export default function JokeRoute() {
 export function ErrorBoundary() {
   const { jokeId } = useParams();
   const error = useRouteError();
-  console.error(error);
 
   if (isRouteErrorResponse(error)) {
     if (error.status === 400) {

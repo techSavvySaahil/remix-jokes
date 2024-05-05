@@ -1,7 +1,7 @@
-import type { Joke } from "@prisma/client";
+import type { JokeMain } from "../../common/types";
 
 export type JokeListType = {
-  jokes: Joke[],
+  jokes: JokeMain[],
   active: string | undefined,
   changeJoke: (id: string) => void
 }
