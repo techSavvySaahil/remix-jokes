@@ -57,12 +57,16 @@ const LeftPanel = ({ data }: LeftPanelType) => {
       jokeId = isJokePresent ? selectedJokeId : jokeList[0]?.id;
       if (jokeId) {
         if (!isJokePresent) setSelectedJokeId(jokeId);
-        const { user, keyword, sortKey } = queryFilters;
-        const queryParams = `?user=${user}&keyword=${keyword}&sortKey=${sortKey}`;
-        navigate(`${jokeId}${queryParams}`);
+        navigateTo(jokeId);
       }
     } else setSelectedJokeId(urlJokeId);
-  }, [allUsersData])
+  }, [allUsersData]);
+
+  const navigateTo = (jokeId: string) => {
+    const { user, keyword, sortKey } = queryFilters;
+    const queryParams = `?user=${user}&keyword=${keyword}&sortKey=${sortKey}`;
+    navigate(`${jokeId}${queryParams}`);
+  }
 
   const selectUser = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value: id = "" } = e.target;
@@ -105,7 +109,8 @@ const LeftPanel = ({ data }: LeftPanelType) => {
     /* Calling the fn again if the new joke id and current joke id are same */
     if (pickedJokeId === selectedJokeId) showRandomJoke();
     else {
-      navigate(`${pickedJokeId}`);
+      changeSelectedJoke(pickedJokeId);
+      navigateTo(pickedJokeId);
     }
   }
 
