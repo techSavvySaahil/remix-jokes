@@ -138,7 +138,7 @@ const LeftPanel = ({ data }: LeftPanelType) => {
           <option key="date" value="createdAt">Date</option>
         </select>
       </label>
-      <button onClick={applyFilters}>Apply</button>
+      <button className="button" onClick={applyFilters}>Apply</button>
       <p className="click-to-read">Click on a joke to read it:</p>
       <JokesList jokes={jokeList} active={selectedJokeId} queryFilters={queryFilters} changeSelectedJoke={changeSelectedJoke} />
       <button className="button" onClick={showRandomJoke}>See a random joke</button>

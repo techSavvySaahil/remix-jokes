@@ -185,7 +185,7 @@ form button {
 }
 
 .jokes-footer {
-  padding-top: 2rem;
+  padding-top: 1rem;
   padding-bottom: 1rem;
   border-top: 1px solid var(--color-border);
 }
@@ -197,11 +197,6 @@ form button {
 
   .jokes-header .logo-medium {
     display: block;
-  }
-
-  .jokes-main {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
   }
 }
 
