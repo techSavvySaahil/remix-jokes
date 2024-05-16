@@ -6,7 +6,7 @@ import {
   useParams,
   useRouteError,
 } from "@remix-run/react";
-
+import { sortKeyMapCheck } from "../common/utils";
 import { JokeDisplay } from "~/components/Joke";
 import { db } from "~/utils/db.server";
 import { getUserId, requireUserId } from "~/utils/session.server";
@@ -58,7 +58,13 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     throw new Response("Pssh, nice try. That's not your joke", { status: 403 });
   }
   await db.joke.delete({ where: { id: params.jokeId } });
-  return redirect("/jokes");
+  const { searchParams } = new URL(request.url);
+  const key = searchParams.get('sortKey') || "";
+  const sortKey = sortKeyMapCheck(key);
+  const user = searchParams.get('user') || userId;
+  const keyword = searchParams.get('keyword') || "";
+  const queryParams = `?user=${user}&keyword=${keyword}&sortKey=${sortKey}`;
+  return redirect(`/jokes${queryParams}`);
 };
 
 export default function JokeRoute() {

@@ -51,15 +51,18 @@ const LeftPanel = ({ data }: LeftPanelType) => {
   const urlJokeId = useParams().jokeId;
 
   useEffect(() => {
-    if (!urlJokeId) {
-      let jokeId = "";
-      const isJokePresent = jokeList.some(joke => joke.id === selectedJokeId);
-      jokeId = isJokePresent ? selectedJokeId : jokeList[0]?.id;
-      if (jokeId) {
-        if (!isJokePresent) setSelectedJokeId(jokeId);
-        navigateTo(jokeId);
-      }
-    } else setSelectedJokeId(urlJokeId);
+    const isNewView = location.pathname === "/jokes/new";
+    if (!isNewView) {
+      if (!urlJokeId) {
+        let jokeId = "";
+        const isJokePresent = jokeList.some(joke => joke.id === selectedJokeId);
+        jokeId = isJokePresent ? selectedJokeId : jokeList[0]?.id;
+        if (jokeId) {
+          if (!isJokePresent) setSelectedJokeId(jokeId);
+          navigateTo(jokeId);
+        }
+      } else setSelectedJokeId(urlJokeId);
+    }
   }, [allUsersData]);
 
   const navigateTo = (jokeId: string) => {
