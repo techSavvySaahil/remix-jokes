@@ -1,12 +1,13 @@
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Outlet, useLoaderData, Link, useLocation } from "@remix-run/react";
+import { Outlet, useLoaderData, Link, useLocation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import stylesUrl from "~/styles/jokes.css";
 import { getUser, getAllUsers } from "~/utils/session.server";
 import Header from "~/components/Header";
 import Footer from "~/components/Footer";
 import LeftPanel from "~/components/LeftPanel";
-import type { UserMain, JokeMain, UserJokeType } from "../common/types";
+import type { UserMain, JokeMain, UserJokeType, FilterType } from "../common/types";
+import { sortKeyMapCheck } from "../common/utils";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesUrl },
@@ -14,6 +15,11 @@ export const links: LinksFunction = () => [
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const activeUser: UserMain | null = await getUser(request);
+
+
+  if (!activeUser?.id) {
+    throw new Response("Unauthorized", { status: 401 });
+  }
 
   const userList: UserJokeType[] | [] = activeUser ? await getAllUsers(request) : [];
 
@@ -25,10 +31,40 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       else allUsersData[user.id] = user;
     });
 
-    const jokeListItems: JokeMain[] = activeUser && allUsersData ? allUsersData[activeUser["id"]]["jokes"] : [];
+    const { searchParams } = new URL(request.url);
+    const key = searchParams.get('sortKey') || "createdAt";
+    const sortKey = sortKeyMapCheck(key);
+    const user = searchParams.get('user') || activeUser.id;
+    const keyword = searchParams.get('keyword') || "";
+    const queryFilters: FilterType = { sortKey, user, keyword };
 
-    return json({ jokeListItems, user: activeUser, allUsersData });
+    let updatedList: JokeMain[] = [];
+    if (user !== "all") {
+      updatedList = allUsersData[user]?.jokes || [];
+    } else {
+      Object.values(allUsersData).forEach(userInfo => {
+        if (userInfo) updatedList.push(...userInfo.jokes);
+      });
+    }
+
+    if (keyword !== "") {
+      updatedList = updatedList.filter((joke: JokeMain) => {
+        if (joke.name.toLowerCase().includes(keyword.toLowerCase())) {
+          return true;
+        }
+        return false;
+      });
+    }
+
+    updatedList = updatedList.sort((a: JokeMain, b: JokeMain) => {
+      return a[sortKey] < b[sortKey] ? -1 : 1;
+    });
+
+    const jokeListItems: JokeMain[] = updatedList || [];
+
+    return json({ jokeListItems, user: activeUser, allUsersData, queryFilters });
   }
+  return null;
 }
 
 export default function JokesRoute() {
@@ -53,6 +89,25 @@ export default function JokesRoute() {
         </div>
       </main>
       <Footer />
+    </div>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error) && error.status === 401) {
+    return (
+      <div className="error-container">
+        <p>You must be logged in to view a joke.</p>
+        <Link to="/login">Login</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="error-container">
+      Something unexpected went wrong. Sorry about that.
     </div>
   );
 }

@@ -6,6 +6,12 @@ export type JokeMain = {
   createdAt: Date | string
 }
 
+export type FilterType = {
+  user: string,
+  keyword: string,
+  sortKey: "name" | "createdAt"
+}
+
 export type UserMain = Pick<User, "id" | "username">;
 
 export interface UserJokeType extends UserMain {

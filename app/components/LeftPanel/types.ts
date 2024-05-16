@@ -1,15 +1,9 @@
-import type { UserMain, JokeMain, UserJokeType } from "../../common/types";
+import type { UserMain, JokeMain, UserJokeType, FilterType } from "../../common/types";
 
 export enum ActionTypeList {
   KEYWORD_CHANGED = "KEYWORD_CHANGED",
   USER_UPDATED = "USER_UPDATED",
   SORT_UPDATED = "SORT_UPDATED"
-}
-
-export type FilterType = {
-  user: string,
-  keyword: string,
-  sortKey: "name" | "createdAt"
 }
 
 export type KeyUserObjType = {
@@ -30,7 +24,8 @@ export type LeftPanelType = {
     jokeListItems: JokeMain[],
     allUsersData: {
       [x: string]: UserJokeType | null
-    }
+    },
+    queryFilters: FilterType
   }
 }
 

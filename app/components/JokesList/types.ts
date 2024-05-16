@@ -1,7 +1,8 @@
-import type { JokeMain } from "../../common/types";
+import type { FilterType, JokeMain } from "../../common/types";
 
 export type JokeListType = {
   jokes: JokeMain[],
   active: string | undefined,
-  changeJoke: (id: string) => void
+  changeSelectedJoke: (id: string) => void,
+  queryFilters: FilterType
 }
