@@ -7,12 +7,15 @@ So great, it's funny!
 - When you select a new user, their first joke would automatically be displayed
 - You can also choose "All" to view jokes from all the users together
 - There's a new Joke card now
-- You can also search a joke by a keyword in their title
-- When you select a new user from the list, the keyword filter also gets reset
+- You can also search a joke by a keyword in its title
 - You can also view a random joke from the list displayed by clicking "See a random joke" button
 - Or you can add your own joke by clicking "Add your own" button
+- Now, the link is shareable. You can choose filters and/or sorting and share the link with your friends.
 
 So, what are you waiting for? Login, read or add jokes and have a good time laughing.
+
+See live here,
+https://remix-jokes-saahil-nameless-smoke-2931.fly.dev/login
 
 To run the project in your local,
 

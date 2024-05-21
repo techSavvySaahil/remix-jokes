@@ -1,44 +1,24 @@
 import React, { useEffect, useState, useReducer, useRef } from "react";
-import { Link, useNavigate } from "@remix-run/react";
-import type { User, Joke } from "@prisma/client";
+import { useNavigate, useParams } from "@remix-run/react";
 import JokesList from "~/components/JokesList";
-
-type LeftPanelType = {
-  data: {
-    user: User,
-    jokeListItems: Joke[],
-    allUsersData: {
-      [key: string]: User
-    }
-  }
-}
-
-enum ActionTypeList {
-  KEYWORD_CHANGED = "KEYWORD_CHANGED",
-  USER_UPDATED = "USER_UPDATED"
-}
-
-type FilterType = {
-  user: string,
-  keyword: string
-}
-
-type ActionObjType = {
-  type: ActionTypeList,
-  value: string
-}
+import { ActionTypeList, type ActionObjType, type LeftPanelType } from "./types";
+import type { FilterType } from "../../common/types";
 
 const LeftPanel = ({ data }: LeftPanelType) => {
-  const { user: userData, allUsersData, jokeListItems } = data;
-  const [jokeList, setJokeList] = useState<Joke[]>(jokeListItems);
-  const [selectedJokeId, setSelectedJokeId] = useState<string>(jokeListItems[0]?.id);
+  const { jokeListItems: jokeList, allUsersData, user: userData, queryFilters } = data;
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [selectedJokeId, setSelectedJokeId] = useState("");
+
+  useEffect(() => {
+    // setting initial value for keyword input
+    if (inputRef.current) inputRef.current.value = queryFilters.keyword;
+  }, [])
 
   const filtersReducer = (state: FilterType, action: ActionObjType) => {
     switch (action.type) {
       /* updating the list of jokes after
-      * after a search query is entered
+       * after a search query is entered
       */
       case ActionTypeList.KEYWORD_CHANGED:
         return {
@@ -46,23 +26,50 @@ const LeftPanel = ({ data }: LeftPanelType) => {
           keyword: action.value
         }
       /* updating the list of jokes after
-      * after we select another user from the list
+       * after we select another user from the list
       */
       case ActionTypeList.USER_UPDATED:
-        if (inputRef && inputRef.current) inputRef.current.value = "";
         return {
           ...state,
-          user: action.value,
-          keyword: ""
+          user: action.value
         }
+      /* updating the list of jokes after
+       * after a new "Sort by" is selected
+      */
+      case ActionTypeList.SORT_UPDATED:
+        return {
+          ...state,
+          sortKey: action.value
+        }
+      default:
+        return state;
     }
   };
 
-  const initialFilters: FilterType = {
-    user: userData.id,
-    keyword: ""
-  };
-  const [selectedFilters, dispatchFilters] = useReducer(filtersReducer, initialFilters);
+  const [selectedFilters, dispatchFilters] = useReducer(filtersReducer, queryFilters);
+
+  const urlJokeId = useParams().jokeId;
+
+  useEffect(() => {
+    const isNewView = location.pathname === "/jokes/new";
+    if (!isNewView) {
+      if (!urlJokeId) {
+        let jokeId = "";
+        const isJokePresent = jokeList.some(joke => joke.id === selectedJokeId);
+        jokeId = isJokePresent ? selectedJokeId : jokeList[0]?.id;
+        if (jokeId) {
+          if (!isJokePresent) setSelectedJokeId(jokeId);
+          navigateTo(jokeId);
+        }
+      } else setSelectedJokeId(urlJokeId);
+    }
+  }, [allUsersData]);
+
+  const navigateTo = (jokeId: string) => {
+    const { user, keyword, sortKey } = queryFilters;
+    const queryParams = `?user=${user}&keyword=${keyword}&sortKey=${sortKey}`;
+    navigate(`${jokeId}${queryParams}`);
+  }
 
   const selectUser = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value: id = "" } = e.target;
@@ -72,37 +79,30 @@ const LeftPanel = ({ data }: LeftPanelType) => {
     });
   }
 
+  const sortJokes = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value: sortKey = "name" } = e.target;
+    if (sortKey === "name" || sortKey === "createdAt") {
+      dispatchFilters({
+        type: ActionTypeList.SORT_UPDATED,
+        value: sortKey
+      });
+    }
+  }
+
   const keywordHandler = () => {
     // apply debouncing
     dispatchFilters({
       type: ActionTypeList.KEYWORD_CHANGED,
-      value: inputRef.current?.value
+      value: inputRef.current?.value || ""
     })
   }
 
-  useEffect(() => {
-    const { user, keyword } = selectedFilters;
-    let updatedList = [];
-    if (user !== "all") {
-      updatedList = allUsersData[user].jokes;
-    } else {
-      Object.values(allUsersData).forEach(userInfo => {
-        updatedList.push(...userInfo.jokes);
-      });
-    }
-    if (keyword !== "") {
-      updatedList = updatedList.filter((joke: Joke) => {
-        if (joke.name.toLowerCase().includes(keyword.toLowerCase())) {
-          return true;
-        }
-        return false;
-      });
-    }
-    setJokeList(updatedList);
-    const newJokeId = updatedList[0]?.id;
-    setSelectedJokeId(newJokeId);
-    newJokeId ? navigate(`${newJokeId}`) : navigate("/jokes");
-  }, [selectedFilters, allUsersData]);
+  const applyFilters = () => {
+    const { user, keyword, sortKey } = selectedFilters;
+    const queryParams = `user=${user}&keyword=${keyword}&sortKey=${sortKey}`;
+    const url = `/jokes?${queryParams}`;
+    navigate(url);
+  }
 
   /* for showing random jokes from the displayed list */
   const showRandomJoke = () => {
@@ -112,18 +112,22 @@ const LeftPanel = ({ data }: LeftPanelType) => {
     /* Calling the fn again if the new joke id and current joke id are same */
     if (pickedJokeId === selectedJokeId) showRandomJoke();
     else {
-      setSelectedJokeId(pickedJokeId);
-      navigate(`${pickedJokeId}`);
+      changeSelectedJoke(pickedJokeId);
+      navigateTo(pickedJokeId);
     }
+  }
+
+  const changeSelectedJoke = (id: string) => {
+    setSelectedJokeId(id);
   }
 
   return (
     <div className="left-panel">
-      <label>Select a user to see their jokes:
-        <select className="user-dropdown" name="selectedUser" defaultValue={userData?.id} onChange={selectUser}>
+      <label><b>Select</b> <span className="small-desc"><i>(a user to see their jokes)</i></span>:
+        <select className="user-dropdown" name="selectedUser" defaultValue={selectedFilters.user} onChange={selectUser}>
           <option key="all" value="all">All</option>
           {Object.keys(allUsersData)?.map(user => {
-            const { id, username } = allUsersData[user];
+            const { id, username } = allUsersData[user] || {};
             const text = id === userData.id ? `(You) ${username}` : username;
             return (
               <option key={id} value={id}>
@@ -133,14 +137,19 @@ const LeftPanel = ({ data }: LeftPanelType) => {
           })}
         </select>
       </label>
-      <input type="text" ref={inputRef} placeholder="Search a joke" onChange={keywordHandler} />
-      <p>Click on a joke to read it:</p>
-      <JokesList jokes={jokeList} active={selectedJokeId} changeJoke={(id) => { setSelectedJokeId(id) }} />
+      <label><b>Search</b> <span className="small-desc"><i>(a keyword)</i></span>:
+        <input type="text" ref={inputRef} placeholder="Search a joke" onChange={keywordHandler} />
+      </label>
+      <label><b>Sort</b> <span className="small-desc"><i>(by name or date)</i></span>:
+        <select className="sort-dropdown" name="jokeSorter" defaultValue={selectedFilters.sortKey} onChange={sortJokes}>
+          <option key="name" value="name">Name</option>
+          <option key="date" value="createdAt">Date</option>
+        </select>
+      </label>
+      <button className="button" onClick={applyFilters}>Apply</button>
+      <p className="click-to-read">Click on a joke to read it:</p>
+      <JokesList jokes={jokeList} active={selectedJokeId} queryFilters={queryFilters} changeSelectedJoke={changeSelectedJoke} />
       <button className="button" onClick={showRandomJoke}>See a random joke</button>
-      <p><b>(OR)</b></p>
-      <Link to="new" className="button">
-        Add your own
-      </Link>
     </div>
   )
 }
