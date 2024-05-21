@@ -14,6 +14,9 @@ So great, it's funny!
 
 So, what are you waiting for? Login, read or add jokes and have a good time laughing.
 
+See live here,
+https://remix-jokes-saahil-nameless-smoke-2931.fly.dev/login
+
 To run the project in your local,
 
 - Clone the repo

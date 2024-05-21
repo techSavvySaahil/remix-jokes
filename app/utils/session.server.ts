@@ -32,7 +32,7 @@ export async function login({ password, username }: LoginForm) {
   return { id: user.id, username };
 }
 
-const sessionSecret = process.env.SESSION_SECRET;
+const sessionSecret = "remixrulz";
 if (!sessionSecret) {
   throw new Error("SESSION_SECRET must be set");
 }
