@@ -56,7 +56,7 @@ kill_timeout = '5s'
     timeout = '2s'
     grace_period = '5s'
     method = 'get'
-    path = '/healthcheck'
+    path = '/login'
     protocol = 'http'
     tls_skip_verify = false
 
